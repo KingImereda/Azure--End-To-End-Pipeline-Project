@@ -1,0 +1,19 @@
+{
+	"name": "DS_Emp_Sal_Out",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_datalake_out",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
