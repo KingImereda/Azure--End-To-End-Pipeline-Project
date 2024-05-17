@@ -5,6 +5,14 @@
 			"referenceName": "SqlServer1",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"SourceSchema": {
+				"type": "string"
+			},
+			"SourceTable": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "SqlServerTable",
 		"schema": [
@@ -74,8 +82,14 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "dbo",
-			"table": "Employee_Salaries_Pittsbourgh_2016"
+			"schema": {
+				"value": "@dataset().SourceSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().SourceTable",
+				"type": "Expression"
+			}
 		}
 	}
 }
