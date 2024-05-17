@@ -1,0 +1,81 @@
+{
+	"name": "DS_In_OnPrem_Emp",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "FIRST_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "LAST_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "DEPARTMENT",
+				"type": "varchar"
+			},
+			{
+				"name": "JOB_TITLE",
+				"type": "varchar"
+			},
+			{
+				"name": "ELECTED_OFFICIAL",
+				"type": "varchar"
+			},
+			{
+				"name": "DATE_STARTED",
+				"type": "varchar"
+			},
+			{
+				"name": "SEX",
+				"type": "varchar"
+			},
+			{
+				"name": "ETHNICITY",
+				"type": "varchar"
+			},
+			{
+				"name": "ORIG_START",
+				"type": "varchar"
+			},
+			{
+				"name": "DATE_TERM",
+				"type": "varchar"
+			},
+			{
+				"name": "PAY_STATUS",
+				"type": "varchar"
+			},
+			{
+				"name": "ANNUAL_SALARY",
+				"type": "varchar"
+			},
+			{
+				"name": "REGULAR_PAY",
+				"type": "varchar"
+			},
+			{
+				"name": "OVERTIME_PAY",
+				"type": "varchar"
+			},
+			{
+				"name": "INCENTIVE_PAY",
+				"type": "varchar"
+			},
+			{
+				"name": "GROSS_PAY",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Employee_Salaries_Pittsbourgh_2016"
+		}
+	}
+}
