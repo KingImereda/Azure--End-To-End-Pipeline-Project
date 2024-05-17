@@ -18,7 +18,7 @@
 					"source": {
 						"type": "SqlServerSource",
 						"sqlReaderQuery": {
-							"value": "Select table_schema, table_name\nFrom Information_Schema.tables\nWhere table_schema ='dbo' and table_name like 'Employee_Salaries_pittsbourgh_2016%'",
+							"value": "Select table_schema, table_name\nFrom Information_Schema.tables\nWhere table_schema ='dbo' and table_name like 'Employee%'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
