@@ -146,7 +146,7 @@
 				}
 			},
 			{
-				"name": "gold to curated",
+				"name": "goldtoplatinum",
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
@@ -165,7 +165,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Shared/goldtocurated"
+					"notebookPath": "/Shared/goldtoplatinum"
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks1",
