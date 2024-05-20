@@ -1,0 +1,22 @@
+{
+	"name": "DS_bronzecontainer_Out",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_datalake_out",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "bronzecontainer"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

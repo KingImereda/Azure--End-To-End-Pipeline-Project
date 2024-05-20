@@ -110,7 +110,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DS_Sink_bronze",
+									"referenceName": "DS_bronzecontainer_Out",
 									"type": "DatasetReference"
 								}
 							]
