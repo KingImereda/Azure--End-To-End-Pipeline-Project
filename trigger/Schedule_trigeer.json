@@ -2,7 +2,7 @@
 	"name": "Schedule_trigeer",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [
 			{
 				"pipelineReference": {
@@ -16,11 +16,11 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-25T19:17:00",
+				"startTime": "2024-05-25T20:21:00",
 				"timeZone": "W. Central Africa Standard Time",
 				"schedule": {
 					"minutes": [
-						17
+						21
 					],
 					"hours": [
 						20
