@@ -16,11 +16,11 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-25T20:43:00",
+				"startTime": "2024-05-25T20:50:00",
 				"timeZone": "GMT Standard Time",
 				"schedule": {
 					"minutes": [
-						45
+						50
 					],
 					"hours": [
 						20
