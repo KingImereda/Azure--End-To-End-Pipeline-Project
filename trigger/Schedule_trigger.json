@@ -14,10 +14,18 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Hour",
+				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-25T19:35:00",
-				"timeZone": "W. Central Africa Standard Time"
+				"startTime": "2024-05-25T20:40:00",
+				"timeZone": "GMT Standard Time",
+				"schedule": {
+					"minutes": [
+						40
+					],
+					"hours": [
+						20
+					]
+				}
 			}
 		}
 	}
