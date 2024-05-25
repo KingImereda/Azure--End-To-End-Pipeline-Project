@@ -5,6 +5,14 @@
 			"referenceName": "LS_sql_Out",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"SourceSchema": {
+				"type": "string"
+			},
+			"Sourcetable": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
@@ -22,8 +30,14 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "dbo",
-			"table": "PM"
+			"schema": {
+				"value": "@dataset().SourceSchema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().Sourcetable",
+				"type": "Expression"
+			}
 		}
 	}
 }
