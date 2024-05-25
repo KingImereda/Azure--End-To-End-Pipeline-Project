@@ -1,0 +1,33 @@
+{
+	"name": "trigger1",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "End_To_End_PL",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2024-05-25T18:33:00",
+				"endTime": "2024-05-27T18:33:00",
+				"timeZone": "W. Central Africa Standard Time",
+				"schedule": {
+					"minutes": [
+						40
+					],
+					"hours": [
+						7
+					]
+				}
+			}
+		}
+	}
+}

@@ -141,7 +141,7 @@
 					"notebookPath": "/Shared/bronze to gold"
 				},
 				"linkedServiceName": {
-					"referenceName": "AzureDatabricks1",
+					"referenceName": "AzureDatabricks2",
 					"type": "LinkedServiceReference"
 				}
 			},
@@ -168,7 +168,7 @@
 					"notebookPath": "/Shared/goldtoplatinum"
 				},
 				"linkedServiceName": {
-					"referenceName": "AzureDatabricks1",
+					"referenceName": "AzureDatabricks2",
 					"type": "LinkedServiceReference"
 				}
 			}
