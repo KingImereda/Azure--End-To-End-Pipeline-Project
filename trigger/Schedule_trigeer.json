@@ -1,5 +1,5 @@
 {
-	"name": "trigger1",
+	"name": "Schedule_trigeer",
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
@@ -16,15 +16,14 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-25T19:44:00",
-				"endTime": "2024-05-27T18:33:00",
+				"startTime": "2024-05-25T19:17:00",
 				"timeZone": "W. Central Africa Standard Time",
 				"schedule": {
 					"minutes": [
-						44
+						17
 					],
 					"hours": [
-						7
+						20
 					]
 				}
 			}
