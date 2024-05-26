@@ -1,0 +1,90 @@
+{
+	"name": "PL_IncrementalLoading_Datetime",
+	"properties": {
+		"activities": [
+			{
+				"name": "Fetch max Depaturedate",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select max(Departuredate) as date1 from Airline",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_Airline_LK_Sink",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Incremental Loading",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Fetch max Depaturedate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "Select [Passenger ID]\r\n      ,[First Name]\r\n      ,[Last Name]\r\n      ,[Gender]\r\n      ,[Age]\r\n      ,[Nationality]\r\n      ,[Airport Name]\r\n      ,[Airport Country Code]\r\n      ,[Country Name]\r\n      ,[Airport Continent]\r\n      ,[Continents]\r\n      ,[Departuredate]\r\n      ,[Arrival Airport]\r\n      ,[Pilot Name]\r\n      ,[Flight Status] from  [Airline Dataset]\r\nWhere Departuredate > '@{activity('Fetch max Depaturedate').output.firstRow.date1}'     \r\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Airline_Source_OnPrem",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Airline_LK_Sink",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
