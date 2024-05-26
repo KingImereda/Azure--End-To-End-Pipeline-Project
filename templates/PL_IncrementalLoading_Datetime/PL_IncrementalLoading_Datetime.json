@@ -1,0 +1,285 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"LS_sql_Out": {
+			"type": "string"
+		},
+		"SqlServer1": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_IncrementalLoading_Datetime')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Fetch max Depaturedate",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select max(Departuredate) as date1 from Airline",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "DS_Airline_LK_Sink",
+								"type": "DatasetReference"
+							}
+						}
+					},
+					{
+						"name": "Incremental Loading",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Fetch max Depaturedate",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "Select [Passenger ID]\r\n      ,[First Name]\r\n      ,[Last Name]\r\n      ,[Gender]\r\n      ,[Age]\r\n      ,[Nationality]\r\n      ,[Airport Name]\r\n      ,[Airport Country Code]\r\n      ,[Country Name]\r\n      ,[Airport Continent]\r\n      ,[Continents]\r\n      ,[Departuredate]\r\n      ,[Arrival Airport]\r\n      ,[Pilot Name]\r\n      ,[Flight Status] from  [Airline Dataset]\r\nWhere Departuredate > '@{activity('Fetch max Depaturedate').output.firstRow.date1}'     \r\n",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_Airline_Source_OnPrem",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_Airline_LK_Sink",
+								"type": "DatasetReference"
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_Airline_LK_Sink')]",
+				"[concat(variables('factoryId'), '/datasets/DS_Airline_Source_OnPrem')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Airline_LK_Sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('LS_sql_Out')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Passenger ID",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Age",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Nationality",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Country Code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Continent",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Continents",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Departuredate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Arrival Airport",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Pilot Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Flight Status",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Airline"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_Airline_Source_OnPrem')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('SqlServer1')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "Passenger ID",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Age",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Nationality",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Country Code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Continent",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Continents",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Departuredate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Arrival Airport",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Pilot Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Flight Status",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Airline Dataset"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
