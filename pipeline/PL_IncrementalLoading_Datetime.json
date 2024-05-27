@@ -83,6 +83,33 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Incremental Loading_PL_Datetime_Method",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Incremental Loading",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/Incremental  Loading Using Datetime Method"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks3",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": []
