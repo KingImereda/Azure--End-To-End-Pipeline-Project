@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Fetch max Depaturedate",
+				"name": "Fetch max Depature Date",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -17,12 +17,12 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select max(Departuredate) as date1 from Airline",
+						"sqlReaderQuery": "Select max(Departure Date) as date1 from Airline",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "DS_Airline_LK_Sink",
+						"referenceName": "AirlineDS_Sink",
 						"type": "DatasetReference"
 					}
 				}
@@ -32,7 +32,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Fetch max Depaturedate",
+						"activity": "Fetch max Depature Date",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -50,7 +50,7 @@
 					"source": {
 						"type": "SqlServerSource",
 						"sqlReaderQuery": {
-							"value": "Select [Passenger ID]\r\n      ,[First Name]\r\n      ,[Last Name]\r\n      ,[Gender]\r\n      ,[Age]\r\n      ,[Nationality]\r\n      ,[Airport Name]\r\n      ,[Airport Country Code]\r\n      ,[Country Name]\r\n      ,[Airport Continent]\r\n      ,[Continents]\r\n      ,[Departuredate]\r\n      ,[Arrival Airport]\r\n      ,[Pilot Name]\r\n      ,[Flight Status] from  [Airline Dataset]\r\nWhere Departuredate > '@{activity('Fetch max Depaturedate').output.firstRow.date1}'     \r\n",
+							"value": "SELECT [Passenger ID]\r\n      ,[First Name]\r\n      ,[Last Name]\r\n      ,[Gender]\r\n      ,[Age]\r\n      ,[Nationality]\r\n      ,[Airport Name]\r\n      ,[Airport Country Code]\r\n      ,[Country Name]\r\n      ,[Airport Continent]\r\n      ,[Continents]\r\n      ,[Departure Date]\r\n      ,[Arrival Airport]\r\n      ,[Pilot Name]\r\n      ,[Flight Status]\r\n  FROM [Projects].[dbo].[Airline Dataset]\r\n  Where [Departure Date] > '@{activity('Fetch max Depature Date').output.firstRow.date1}'\r\n\r\n\r\n\r\n",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -73,13 +73,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "DS_Airline_Source_OnPrem",
+						"referenceName": "AirlineOnPremDs_Source",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "DS_Airline_LK_Sink",
+						"referenceName": "AirlineDS_Sink",
 						"type": "DatasetReference"
 					}
 				]
