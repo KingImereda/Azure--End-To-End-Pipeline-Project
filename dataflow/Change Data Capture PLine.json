@@ -22,7 +22,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Ds_ChangeCaptureData",
+						"referenceName": "Ds_Employee_Sql",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -37,6 +37,9 @@
 				},
 				{
 					"name": "exists1"
+				},
+				{
+					"name": "alterRow1"
 				}
 			],
 			"scriptLines": [
@@ -88,15 +91,35 @@
 				"EmployeeCsvAsh, EmployeeSqlAsh exists(EmployeeCsvAsh == EmployeeSqlAsh,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> exists1",
-				"exists1 sink(allowSchemaDrift: true,",
+				"exists1 alterRow(insertIf(1 == 1)) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     partitionFileNames:['Employee.csv'],",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
+				"     input(",
+				"          FIRST_NAME as string,",
+				"          LAST_NAME as string,",
+				"          DEPARTMENT as string,",
+				"          JOB_TITLE as string,",
+				"          ELECTED_OFFICIAL as string,",
+				"          DATE_STARTED as string,",
+				"          SEX as string,",
+				"          ETHNICITY as string,",
+				"          ORIG_START as string,",
+				"          DATE_TERM as string,",
+				"          PAY_STATUS as string,",
+				"          ANNUAL_SALARY as string,",
+				"          REGULAR_PAY as string,",
+				"          OVERTIME_PAY as string,",
+				"          INCENTIVE_PAY as string,",
+				"          GROSS_PAY as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}

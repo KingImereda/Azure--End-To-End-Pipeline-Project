@@ -1,0 +1,365 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"LS_Blob_In": {
+			"type": "string"
+		},
+		"LS_sql_Out": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Incremental Loading CDCto DB')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Change Data Capture PLine",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Change Data Capture PLine",
+								"type": "DataFlowReference"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Change Data Capture PLine')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Change Data Capture PLine')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Employee_Blob_Source",
+								"type": "DatasetReference"
+							},
+							"name": "EmployeeCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "Ds_Employee_Sql",
+								"type": "DatasetReference"
+							},
+							"name": "EmployeeSql"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Ds_Employee_Sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "EmployeeCsvAsh"
+						},
+						{
+							"name": "EmployeeSqlAsh"
+						},
+						{
+							"name": "exists1"
+						},
+						{
+							"name": "alterRow1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          FIRST_NAME as string,",
+						"          LAST_NAME as string,",
+						"          DEPARTMENT as string,",
+						"          JOB_TITLE as string,",
+						"          ELECTED_OFFICIAL as string,",
+						"          DATE_STARTED as string,",
+						"          SEX as string,",
+						"          ETHNICITY as string,",
+						"          ORIG_START as string,",
+						"          DATE_TERM as string,",
+						"          PAY_STATUS as string,",
+						"          ANNUAL_SALARY as string,",
+						"          REGULAR_PAY as string,",
+						"          OVERTIME_PAY as string,",
+						"          INCENTIVE_PAY as string,",
+						"          GROSS_PAY as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> EmployeeCSV",
+						"source(output(",
+						"          FIRST_NAME as string,",
+						"          LAST_NAME as string,",
+						"          DEPARTMENT as string,",
+						"          JOB_TITLE as string,",
+						"          ELECTED_OFFICIAL as string,",
+						"          DATE_STARTED as string,",
+						"          SEX as string,",
+						"          ETHNICITY as string,",
+						"          ORIG_START as string,",
+						"          DATE_TERM as string,",
+						"          PAY_STATUS as string,",
+						"          ANNUAL_SALARY as string,",
+						"          REGULAR_PAY as string,",
+						"          OVERTIME_PAY as string,",
+						"          INCENTIVE_PAY as string,",
+						"          GROSS_PAY as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> EmployeeSql",
+						"EmployeeCSV derive(EmployeeCsvAsh = sha2(256, columns())) ~> EmployeeCsvAsh",
+						"EmployeeSql derive(EmployeeSqlAsh = sha2(25, columns())) ~> EmployeeSqlAsh",
+						"EmployeeCsvAsh, EmployeeSqlAsh exists(EmployeeCsvAsh == EmployeeSqlAsh,",
+						"     negate:true,",
+						"     broadcast: 'auto')~> exists1",
+						"exists1 alterRow(insertIf(1 == 1)) ~> alterRow1",
+						"alterRow1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          FIRST_NAME as string,",
+						"          LAST_NAME as string,",
+						"          DEPARTMENT as string,",
+						"          JOB_TITLE as string,",
+						"          ELECTED_OFFICIAL as string,",
+						"          DATE_STARTED as string,",
+						"          SEX as string,",
+						"          ETHNICITY as string,",
+						"          ORIG_START as string,",
+						"          DATE_TERM as string,",
+						"          PAY_STATUS as string,",
+						"          ANNUAL_SALARY as string,",
+						"          REGULAR_PAY as string,",
+						"          OVERTIME_PAY as string,",
+						"          INCENTIVE_PAY as string,",
+						"          GROSS_PAY as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Employee_Blob_Source')]",
+				"[concat(variables('factoryId'), '/datasets/Ds_Employee_Sql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Employee_Blob_Source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('LS_Blob_In')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Employee_Salaries_Pittsbourgh_2018.csv",
+						"container": "backupstorage"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "FIRST_NAME",
+						"type": "String"
+					},
+					{
+						"name": "LAST_NAME",
+						"type": "String"
+					},
+					{
+						"name": "DEPARTMENT",
+						"type": "String"
+					},
+					{
+						"name": "JOB_TITLE",
+						"type": "String"
+					},
+					{
+						"name": "ELECTED_OFFICIAL",
+						"type": "String"
+					},
+					{
+						"name": "DATE_STARTED",
+						"type": "String"
+					},
+					{
+						"name": "SEX",
+						"type": "String"
+					},
+					{
+						"name": "ETHNICITY",
+						"type": "String"
+					},
+					{
+						"name": "ORIG_START",
+						"type": "String"
+					},
+					{
+						"name": "DATE_TERM",
+						"type": "String"
+					},
+					{
+						"name": "PAY_STATUS",
+						"type": "String"
+					},
+					{
+						"name": "ANNUAL_SALARY",
+						"type": "String"
+					},
+					{
+						"name": "REGULAR_PAY",
+						"type": "String"
+					},
+					{
+						"name": "OVERTIME_PAY",
+						"type": "String"
+					},
+					{
+						"name": "INCENTIVE_PAY",
+						"type": "String"
+					},
+					{
+						"name": "GROSS_PAY",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Ds_Employee_Sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('LS_sql_Out')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "FIRST_NAME",
+						"type": "varchar"
+					},
+					{
+						"name": "LAST_NAME",
+						"type": "varchar"
+					},
+					{
+						"name": "DEPARTMENT",
+						"type": "varchar"
+					},
+					{
+						"name": "JOB_TITLE",
+						"type": "varchar"
+					},
+					{
+						"name": "ELECTED_OFFICIAL",
+						"type": "varchar"
+					},
+					{
+						"name": "DATE_STARTED",
+						"type": "varchar"
+					},
+					{
+						"name": "SEX",
+						"type": "varchar"
+					},
+					{
+						"name": "ETHNICITY",
+						"type": "varchar"
+					},
+					{
+						"name": "ORIG_START",
+						"type": "varchar"
+					},
+					{
+						"name": "DATE_TERM",
+						"type": "varchar"
+					},
+					{
+						"name": "PAY_STATUS",
+						"type": "varchar"
+					},
+					{
+						"name": "ANNUAL_SALARY",
+						"type": "varchar"
+					},
+					{
+						"name": "REGULAR_PAY",
+						"type": "varchar"
+					},
+					{
+						"name": "OVERTIME_PAY",
+						"type": "varchar"
+					},
+					{
+						"name": "INCENTIVE_PAY",
+						"type": "varchar"
+					},
+					{
+						"name": "GROSS_PAY",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Employee"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
