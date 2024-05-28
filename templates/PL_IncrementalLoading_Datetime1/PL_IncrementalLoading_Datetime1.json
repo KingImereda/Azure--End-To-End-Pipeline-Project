@@ -1,0 +1,315 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"AzureDatabricks3": {
+			"type": "string"
+		},
+		"LS_sql_Out": {
+			"type": "string"
+		},
+		"SqlServer1": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_IncrementalLoading_Datetime')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Fetch max Depature Date",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "Select max(Departure Date) as date1 from Airline",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AirlineDS_Sink",
+								"type": "DatasetReference"
+							}
+						}
+					},
+					{
+						"name": "Incremental Loading",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Fetch max Depature Date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": {
+									"value": "SELECT [Passenger ID]\r\n      ,[First Name]\r\n      ,[Last Name]\r\n      ,[Gender]\r\n      ,[Age]\r\n      ,[Nationality]\r\n      ,[Airport Name]\r\n      ,[Airport Country Code]\r\n      ,[Country Name]\r\n      ,[Airport Continent]\r\n      ,[Continents]\r\n      ,[Departure Date]\r\n      ,[Arrival Airport]\r\n      ,[Pilot Name]\r\n      ,[Flight Status]\r\n  FROM [Projects].[dbo].[Airline Dataset]\r\n  Where [Departure Date] > '@{activity('Fetch max Depature Date').output.firstRow.date1}'\r\n\r\n\r\n\r\n",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AirlineOnPremDs_Source",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AirlineDS_Sink",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "Incremental Loading_PL_Datetime_Method",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Incremental Loading",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Shared/Incremental  Loading Using Datetime Method"
+						},
+						"linkedServiceName": {
+							"referenceName": "[parameters('AzureDatabricks3')]",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AirlineDS_Sink')]",
+				"[concat(variables('factoryId'), '/datasets/AirlineOnPremDs_Source')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AirlineDS_Sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('LS_sql_Out')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Passenger ID",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Age",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Nationality",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Country Code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Continent",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Continents",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Departure Date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Arrival Airport",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Pilot Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Flight Status",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Airline"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AirlineOnPremDs_Source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('SqlServer1')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "Passenger ID",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "First Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Last Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Age",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Nationality",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Country Code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Country Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Airport Continent",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Continents",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Departure Date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Arrival Airport",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Pilot Name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Flight Status",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Airline Dataset"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

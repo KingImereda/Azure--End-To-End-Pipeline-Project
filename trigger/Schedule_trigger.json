@@ -3,21 +3,22 @@
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [
-			{
-				"pipelineReference": {
-					"referenceName": "End_To_End_PL",
-					"type": "PipelineReference"
-				}
-			}
-		],
+		"pipelines": [],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Hour",
+				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-25T19:35:00",
-				"timeZone": "W. Central Africa Standard Time"
+				"startTime": "2024-05-25T19:50:00",
+				"timeZone": "GMT Standard Time",
+				"schedule": {
+					"minutes": [
+						50
+					],
+					"hours": [
+						19
+					]
+				}
 			}
 		}
 	}

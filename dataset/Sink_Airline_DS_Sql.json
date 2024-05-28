@@ -1,0 +1,81 @@
+{
+	"name": "Sink_Airline_DS_Sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_sql_Out",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Passenger ID",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "First Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Last Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Gender",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Age",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Nationality",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Airport Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Airport Country Code",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Country Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Airport Continent",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Continents",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Departuredate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Arrival Airport",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Pilot Name",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Flight Status",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Airline"
+		}
+	}
+}
