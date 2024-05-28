@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "Select max(Departure Date) as date1 from Airline",
+						"sqlReaderQuery": "Select max(DepartureDate) as date1 from Airline",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -50,7 +50,7 @@
 					"source": {
 						"type": "SqlServerSource",
 						"sqlReaderQuery": {
-							"value": "SELECT [Passenger ID]\r\n      ,[First Name]\r\n      ,[Last Name]\r\n      ,[Gender]\r\n      ,[Age]\r\n      ,[Nationality]\r\n      ,[Airport Name]\r\n      ,[Airport Country Code]\r\n      ,[Country Name]\r\n      ,[Airport Continent]\r\n      ,[Continents]\r\n      ,[Departure Date]\r\n      ,[Arrival Airport]\r\n      ,[Pilot Name]\r\n      ,[Flight Status]\r\n  FROM [Projects].[dbo].[Airline Dataset]\r\n  Where [Departure Date] > '@{activity('Fetch max Depature Date').output.firstRow.date1}'\r\n\r\n\r\n\r\n",
+							"value": "SELECT [Passenger ID]\n      ,[First Name]\n      ,[Last Name]\n      ,[Gender]\n      ,[Age]\n      ,[Nationality]\n      ,[Airport Name]\n      ,[Airport Country Code]\n      ,[Country Name]\n      ,[Airport Continent]\n      ,[Continents]\n      ,[DepartureDate]\n      ,[Arrival Airport]\n      ,[Pilot Name]\n      ,[Flight Status]\n  FROM [Projects].[dbo].[Airline Dataset]\n  Where [DepartureDate] > '@{activity('Fetch max Depature Date').output.firstRow.date1}'\n\n\n\n",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -85,7 +85,7 @@
 				]
 			},
 			{
-				"name": "Incremental Loading_PL_Datetime_Method",
+				"name": "Notebook1",
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
@@ -107,7 +107,7 @@
 					"notebookPath": "/Shared/Incremental  Loading Using Datetime Method"
 				},
 				"linkedServiceName": {
-					"referenceName": "AzureDatabricks3",
+					"referenceName": "AzureDatabricks4",
 					"type": "LinkedServiceReference"
 				}
 			}
