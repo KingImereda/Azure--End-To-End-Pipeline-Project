@@ -1,0 +1,103 @@
+{
+	"name": "Change Data Capture PLine",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Employee_Blob_Source",
+						"type": "DatasetReference"
+					},
+					"name": "EmployeeCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ds_Employee_Sql",
+						"type": "DatasetReference"
+					},
+					"name": "EmployeeSql"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ds_ChangeCaptureData",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "EmployeeCsvAsh"
+				},
+				{
+					"name": "EmployeeSqlAsh"
+				},
+				{
+					"name": "exists1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          FIRST_NAME as string,",
+				"          LAST_NAME as string,",
+				"          DEPARTMENT as string,",
+				"          JOB_TITLE as string,",
+				"          ELECTED_OFFICIAL as string,",
+				"          DATE_STARTED as string,",
+				"          SEX as string,",
+				"          ETHNICITY as string,",
+				"          ORIG_START as string,",
+				"          DATE_TERM as string,",
+				"          PAY_STATUS as string,",
+				"          ANNUAL_SALARY as string,",
+				"          REGULAR_PAY as string,",
+				"          OVERTIME_PAY as string,",
+				"          INCENTIVE_PAY as string,",
+				"          GROSS_PAY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> EmployeeCSV",
+				"source(output(",
+				"          FIRST_NAME as string,",
+				"          LAST_NAME as string,",
+				"          DEPARTMENT as string,",
+				"          JOB_TITLE as string,",
+				"          ELECTED_OFFICIAL as string,",
+				"          DATE_STARTED as string,",
+				"          SEX as string,",
+				"          ETHNICITY as string,",
+				"          ORIG_START as string,",
+				"          DATE_TERM as string,",
+				"          PAY_STATUS as string,",
+				"          ANNUAL_SALARY as string,",
+				"          REGULAR_PAY as string,",
+				"          OVERTIME_PAY as string,",
+				"          INCENTIVE_PAY as string,",
+				"          GROSS_PAY as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> EmployeeSql",
+				"EmployeeCSV derive(EmployeeCsvAsh = sha2(256, columns())) ~> EmployeeCsvAsh",
+				"EmployeeSql derive(EmployeeSqlAsh = sha2(25, columns())) ~> EmployeeSqlAsh",
+				"EmployeeCsvAsh, EmployeeSqlAsh exists(EmployeeCsvAsh == EmployeeSqlAsh,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> exists1",
+				"exists1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['Employee.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
